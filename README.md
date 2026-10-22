@@ -81,6 +81,30 @@ npm run migration:revert
 ```
 Si ya tienes una base creada con `synchronize` (por ejemplo la de Supabase), registra la migración inicial como aplicada en lugar de ejecutarla:
 `INSERT INTO migrations(timestamp, name) VALUES (1791843527342, 'InitialSchema1791843527342');` (la migración `FinanceModules` sí debe ejecutarse: solo crea las tablas nuevas) y aplica antes a mano las columnas nuevas de `users` (`ingreso_mensual`, `acepta_politica`, `fecha_consentimiento`) y `transactions` (`origen_categoria`).
+## Despliegue en la nube (Render + Supabase)
+
+El sistema también se despliega sin Docker: la base de datos en Supabase (PostgreSQL gestionado) y la API y el frontend como dos *Web Services* de Render.
+
+**1. Base de datos (Supabase).** Crear un proyecto y copiar los datos de conexión del *Session pooler* (host, usuario y puerto 5432). No hay que crear las tablas: el backend aplica las migraciones al arrancar.
+
+**2. Backend (Render).** Web Service con `Root Directory: backend`, build `npm install --include=dev && npm run build` y start `npm run start:prod`. Variables de entorno:
+
+| Variable | Valor |
+|---|---|
+| `NODE_VERSION`, `NODE_ENV` | `22.12.0`, `production` |
+| `DB_HOST`, `DB_PORT`, `DB_USERNAME`, `DB_NAME`, `DB_SSL` | datos del pooler de Supabase, `5432`, usuario `postgres.<id-del-proyecto>`, `postgres`, `true` |
+| `DB_PASSWORD` | contraseña del proyecto de Supabase |
+| `JWT_SECRET` | cadena larga y aleatoria |
+| `APP_URL`, `CORS_ORIGINS` | URL del backend y URL del frontend |
+| `ADMIN_EMAIL`, `ADMIN_PASSWORD` | cuenta inicial del administrador |
+| `GEMINI_API_KEY`, `AI_CATEGORIZATION` | opcional (IA); `false` por defecto |
+
+**3. Frontend (Render).** Web Service con `Root Directory: frontend`, build `npm install --include=dev && npm run build` y start `npm run serve:ssr:CaudoFront`. La dirección del backend se define en `frontend/src/environments/environment.prod.ts` (`apiUrl`).
+
+**4. Verificación.** Swagger en `<url-backend>/api/docs`; las 10 tablas deben aparecer en el *Table Editor* de Supabase. En el plan gratuito, los servicios se duermen tras un tiempo sin uso y tardan cerca de un minuto en responder.
+
+Nota de seguridad: las tablas deben tener RLS activado (`ALTER TABLE ... ENABLE ROW LEVEL SECURITY`); el backend se conecta con el rol `postgres`, que no se ve afectado.
+
 
 ## Pruebas
 ```bash
