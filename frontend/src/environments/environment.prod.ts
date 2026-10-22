@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://caudo-backend.onrender.com/api',
+  apiUrl: 'https://caudo-tdg-backend.onrender.com/api',
 };
