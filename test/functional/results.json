@@ -1,0 +1,362 @@
+[
+ {
+  "id": "TC-01",
+  "hu": "HU-01",
+  "pre": "Correo no registrado",
+  "steps": "1. POST /auth/register con datos válidos y aceptaPolitica=true",
+  "exp": "201, cuenta creada con rol usuario y token",
+  "obt": "HTTP 201; rol=usuario; token=sí",
+  "ok": true
+ },
+ {
+  "id": "TC-02",
+  "hu": "HU-01",
+  "pre": "Correo ya registrado en TC-01",
+  "steps": "1. POST /auth/register con el mismo correo",
+  "exp": "409 y sin cuenta duplicada",
+  "obt": "HTTP 409; mensaje: Ya existe una cuenta con este email",
+  "ok": true
+ },
+ {
+  "id": "TC-03",
+  "hu": "HU-01",
+  "pre": "—",
+  "steps": "1. POST /auth/register con aceptaPolitica=false",
+  "exp": "400 con mensaje de política obligatoria",
+  "obt": "HTTP 400; mensaje: Bad Request Exception",
+  "ok": true
+ },
+ {
+  "id": "TC-04",
+  "hu": "HU-01",
+  "pre": "—",
+  "steps": "1. POST /auth/register con contraseña débil (\"abc\")",
+  "exp": "400 con regla de contraseña",
+  "obt": "HTTP 400",
+  "ok": true
+ },
+ {
+  "id": "TC-05",
+  "hu": "HU-02",
+  "pre": "Cuenta de TC-01",
+  "steps": "1. POST /auth/login con credenciales correctas",
+  "exp": "200 y token JWT",
+  "obt": "HTTP 200; token=sí",
+  "ok": true
+ },
+ {
+  "id": "TC-06",
+  "hu": "HU-02",
+  "pre": "—",
+  "steps": "1. Login con contraseña errónea. 2. Login con correo inexistente",
+  "exp": "401 con el mismo mensaje genérico en ambos",
+  "obt": "HTTP 401/401; mensajes iguales: True («Credenciales inválidas»)",
+  "ok": true
+ },
+ {
+  "id": "TC-07",
+  "hu": "HU-02",
+  "pre": "—",
+  "steps": "1. GET /transactions sin token. 2. GET con token inválido",
+  "exp": "401 en ambos casos",
+  "obt": "HTTP 401 y 401",
+  "ok": true
+ },
+ {
+  "id": "TC-08",
+  "hu": "HU-03",
+  "pre": "Sesión iniciada",
+  "steps": "1. GET /users/profile",
+  "exp": "200 con datos del perfil sin hash de contraseña",
+  "obt": "HTTP 200; campos: ['aceptaPolitica', 'activo', 'createdAt', 'email', 'fechaConsentimiento', 'id']…; passwordHash expuesto: False",
+  "ok": true
+ },
+ {
+  "id": "TC-09",
+  "hu": "HU-03",
+  "pre": "Sesión iniciada",
+  "steps": "1. PUT /users/profile con nombre e ingreso. 2. GET /users/profile",
+  "exp": "El cambio persiste",
+  "obt": "HTTP 200; nombre=Usuario Actualizado; ingreso=4000000",
+  "ok": true
+ },
+ {
+  "id": "TC-10",
+  "hu": "HU-03",
+  "pre": "Sesión iniciada",
+  "steps": "1. PUT /users/password con contraseña actual incorrecta",
+  "exp": "Rechazo (4xx) sin cambiar la contraseña",
+  "obt": "HTTP 400",
+  "ok": true
+ },
+ {
+  "id": "TC-11",
+  "hu": "HU-04",
+  "pre": "Sesión iniciada",
+  "steps": "1. Registrar ingreso 4.000.000. 2. Registrar egreso 100.000. 3. GET /transactions/summary",
+  "exp": "201 en ambos y balance 3.900.000",
+  "obt": "HTTP 201/201; resumen: {\"mes\": 10, \"anio\": 2026, \"ingresos\": 4000000, \"egresos\": 100000, \"balance\": 3900000, \"porCategoria\": [{\"tipo\": \"ingreso\", \"categoria\": \"Bonificaciones\", \"icono",
+  "ok": true
+ },
+ {
+  "id": "TC-12",
+  "hu": "HU-04",
+  "pre": "Sesión iniciada",
+  "steps": "1. POST con monto negativo. 2. POST con monto no numérico",
+  "exp": "400 con errores de validación; no se guarda",
+  "obt": "HTTP 400 y 400",
+  "ok": true
+ },
+ {
+  "id": "TC-13",
+  "hu": "HU-04",
+  "pre": "Egreso de TC-11",
+  "steps": "1. PUT /transactions/:id con monto 150.000. 2. GET summary",
+  "exp": "El balance refleja el cambio",
+  "obt": "HTTP 200; resumen: {\"mes\": 10, \"anio\": 2026, \"ingresos\": 4000000, \"egresos\": 150000, \"balance\": 3850000, \"porCategoria\": [{\"tipo\": \"ingreso\", \"categoria\": \"Bonificaciones\", \"icono",
+  "ok": true
+ },
+ {
+  "id": "TC-14",
+  "hu": "HU-04",
+  "pre": "Egreso de TC-11",
+  "steps": "1. DELETE /transactions/:id. 2. GET del mismo id",
+  "exp": "Eliminación (2xx) y luego 404",
+  "obt": "HTTP 200 y luego 404",
+  "ok": true
+ },
+ {
+  "id": "TC-15",
+  "hu": "HU-05",
+  "pre": "Sesión iniciada",
+  "steps": "1. GET /categories/suggest con «uber al trabajo»",
+  "exp": "Categoría sugerida Transporte, origen «reglas»",
+  "obt": "HTTP 200; categoría=Transporte; origen=reglas",
+  "ok": true
+ },
+ {
+  "id": "TC-16",
+  "hu": "HU-05",
+  "pre": "Sesión iniciada",
+  "steps": "1. Registrar egreso «Uber al trabajo» eligiendo manualmente la categoría Salud",
+  "exp": "Se respeta la categoría elegida por el usuario",
+  "obt": "HTTP 201; origen=manual; categoría=Salud",
+  "ok": true
+ },
+ {
+  "id": "TC-17",
+  "hu": "HU-06",
+  "pre": "Hay 6 movimientos registrados",
+  "steps": "1. GET /transactions sin filtros. 2. GET con tipo=egreso, categoría Transporte y rango de fechas",
+  "exp": "Sin filtros: todos, del más reciente al más antiguo. Con filtros: solo 2 coincidencias",
+  "obt": "HTTP 200/200; sin filtros=5; con filtros=2",
+  "ok": true
+ },
+ {
+  "id": "TC-18",
+  "hu": "HU-06",
+  "pre": "Usuario sin movimientos",
+  "steps": "1. GET /transactions",
+  "exp": "Lista vacía (la interfaz muestra el mensaje de invitación)",
+  "obt": "HTTP 200; elementos=0",
+  "ok": true
+ },
+ {
+  "id": "TC-19",
+  "hu": "HU-07",
+  "pre": "Usuario sin topes",
+  "steps": "1. GET /budgets/alerts",
+  "exp": "Lista vacía, sin alertas vacías",
+  "obt": "HTTP 200; alertas=0",
+  "ok": true
+ },
+ {
+  "id": "TC-20",
+  "hu": "HU-07",
+  "pre": "Tope de 120.000 en Alimentación",
+  "steps": "1. Registrar egresos de Alimentación por 85.000. 2. GET /budgets/alerts",
+  "exp": "Alerta preventiva (≥ 80 %) con porcentaje y saldo",
+  "obt": "HTTP 200; estado=alerta; porcentaje=87.5",
+  "ok": true
+ },
+ {
+  "id": "TC-21",
+  "hu": "HU-07",
+  "pre": "Consumo de TC-20",
+  "steps": "1. Registrar 40.000 adicionales (total 145.001). 2. GET /budgets/alerts",
+  "exp": "Alerta crítica (≥ 100 %) distinguible de la preventiva",
+  "obt": "estado=excedido; porcentaje=120.83; mensaje: Superaste el tope de Alimentación: llevas 120.83% de $120.000.",
+  "ok": true
+ },
+ {
+  "id": "TC-22",
+  "hu": "HU-08",
+  "pre": "Sesión iniciada",
+  "steps": "1. Crear meta válida. 2. Crear meta sin monto",
+  "exp": "201 para la válida; 400 para la inválida",
+  "obt": "HTTP 201 y 400",
+  "ok": true
+ },
+ {
+  "id": "TC-23",
+  "hu": "HU-08",
+  "pre": "Meta de TC-22",
+  "steps": "1. POST aporte de 250.000. 2. GET de la meta",
+  "exp": "El avance se actualiza (25 %) y se muestra la proyección",
+  "obt": "HTTP 201; {\"montoAhorrado\": 250000, \"porcentaje\": 25, \"estado\": \"activa\"}",
+  "ok": true
+ },
+ {
+  "id": "TC-24",
+  "hu": "HU-08",
+  "pre": "Meta de TC-22",
+  "steps": "1. POST aporte de 750.000 (total = objetivo). 2. GET de la meta",
+  "exp": "La meta queda completada al 100 %",
+  "obt": "HTTP 201; estado=cumplida; ahorrado=1000000",
+  "ok": true
+ },
+ {
+  "id": "TC-25",
+  "hu": "HU-09",
+  "pre": "Ingreso mensual 4.000.000",
+  "steps": "1. Registrar crédito con cuota 400.000. 2. GET /credits/summary",
+  "exp": "Total de cuotas 400.000 y 10 % del ingreso comprometido",
+  "obt": "HTTP 201/200; {\"totalCuotas\": 400000, \"porcentajeComprometido\": 10, \"nivel\": \"saludable\"}",
+  "ok": true
+ },
+ {
+  "id": "TC-26",
+  "hu": "HU-09",
+  "pre": "Sesión iniciada",
+  "steps": "1. POST /credits con tasa negativa y saldo no numérico",
+  "exp": "400 sin guardar",
+  "obt": "HTTP 400",
+  "ok": true
+ },
+ {
+  "id": "TC-27",
+  "hu": "HU-09",
+  "pre": "Usuario sin ingreso definido",
+  "steps": "1. GET /credits/summary",
+  "exp": "Respuesta sin error y porcentaje 0 (la interfaz invita a completar el perfil)",
+  "obt": "HTTP 200; {\"creditos\": [], \"totalCuotas\": 0, \"totalSaldo\": 0, \"ingresoMensual\": 0, \"fuenteIngreso\": \"sin_dato\", \"porcentajeComprometido\": 0, \"nivel\": null, \"umbrales\": {\"",
+  "ok": true
+ },
+ {
+  "id": "TC-28",
+  "hu": "HU-10",
+  "pre": "Ingreso 4.000.000 y cuota actual 400.000",
+  "steps": "1. Evaluar crédito de 30.000.000 a 24 meses. 2. Evaluar crédito de 3.000.000 a 36 meses",
+  "exp": "El crédito grande se marca «no_recomendable» con motivo; el pequeño no",
+  "obt": "1: veredicto=no_recomendable, nuevo %=49.1; 2: veredicto=viable, nuevo %=12.73",
+  "ok": true
+ },
+ {
+  "id": "TC-29",
+  "hu": "HU-11",
+  "pre": "Crédito de TC-25",
+  "steps": "1. Simular abono de 500.000 reduciendo plazo",
+  "exp": "Intereses y plazo ahorrados > 0",
+  "obt": "HTTP 200; {\"cuotasAhorradas\": 1, \"ahorroIntereses\": 69573.65} claves=['modalidad', 'saldoNuevo', 'cuotaActual', 'cuotaNueva', 'cuotasActuales', 'cuotasNuevas', 'interesesSinAbono', 'interesesConAbono']",
+  "ok": true
+ },
+ {
+  "id": "TC-30",
+  "hu": "HU-11",
+  "pre": "Crédito de TC-25",
+  "steps": "1. Compra de cartera a 15 % EA. 2. Compra de cartera a 40 % EA",
+  "exp": "La primera genera ahorro neto positivo; la segunda lo indica como no conveniente",
+  "obt": "HTTP 200/200; claves=['totalRestanteActual', 'cuotasRestantesActual', 'montoNuevoCredito', 'cuotaNueva', 'totalNuevoCredito', 'ahorroTotal', 'ahorroCuotaMensual', 'plazoNuevoMayor']; ahorro1=41650.85; ahorro2=-148831.68; conviene2=False",
+  "ok": true
+ },
+ {
+  "id": "TC-31",
+  "hu": "HU-12",
+  "pre": "Gastos pequeños repetidos y deuda activa",
+  "steps": "1. GET /insights/ant-expenses. 2. GET /insights/recommendations",
+  "exp": "Se detecta el gasto hormiga y se listan recomendaciones priorizadas con explicación",
+  "obt": "HTTP 200/200; hormiga={\"umbral\": 20000, \"minOcurrencias\": 4, \"items\": [{\"concepto\": \"tinto\", \"categoria\": \"Alimentaci\\u00f3n\", \"ocurrencias\": 5, \"total\": 40000, \"; recomendaciones=2",
+  "ok": true
+ },
+ {
+  "id": "TC-32",
+  "hu": "HU-13",
+  "pre": "Movimientos del mes actual",
+  "steps": "1. GET /dashboard del mes actual. 2. GET /dashboard de un periodo sin movimientos",
+  "exp": "Indicadores del mes; ceros en el periodo vacío",
+  "obt": "HTTP 200/200; claves=['mes', 'anio', 'resumen', 'porCategoria', 'tendencia', 'alertas', 'metas', 'deuda']",
+  "ok": true
+ },
+ {
+  "id": "TC-33",
+  "hu": "HU-14",
+  "pre": "Sesión iniciada",
+  "steps": "1. Subir PNG válido. 2. Subir .xlsx. 3. Subir PDF de más de 5 MB",
+  "exp": "1: 201 con URL; 2 y 3: rechazo (4xx)",
+  "obt": "HTTP 201, 400, 400; url=/uploads/e5c15f3f-5166-48b9-a0c8-5a4550ab420b.png",
+  "ok": true
+ },
+ {
+  "id": "TC-34",
+  "hu": "HU-15",
+  "pre": "Cuenta admin sembrada",
+  "steps": "1. GET /admin/metrics con token de usuario final. 2. Con token de administrador",
+  "exp": "403 para el usuario; 200 para el administrador",
+  "obt": "HTTP 403 y 200; rol del admin=admin",
+  "ok": true
+ },
+ {
+  "id": "TC-35",
+  "hu": "HU-15",
+  "pre": "Sesión de administrador",
+  "steps": "1. POST /admin/users",
+  "exp": "201 con la cuenta creada",
+  "obt": "HTTP 201; {\"id\": \"64c2e3a1-9834-4aa5-8d25-c615976557ed\", \"nombre\": \"Cuenta Creada\", \"email\": \"cred7bf6a@t.co\", \"rol\": \"usuario\", \"activo\": true, \"acep",
+  "ok": true
+ },
+ {
+  "id": "TC-36",
+  "hu": "HU-15",
+  "pre": "Cuenta de TC-35",
+  "steps": "1. Suspender. 2. Intentar iniciar sesión. 3. Reactivar. 4. Iniciar sesión",
+  "exp": "Suspendida: login 403. Reactivada: login 200",
+  "obt": "suspender=201, login=403; reactivar=201, login=200",
+  "ok": true
+ },
+ {
+  "id": "TC-37",
+  "hu": "HU-16",
+  "pre": "Sesión de administrador",
+  "steps": "1. Crear categoría global. 2. Intentar eliminar «Otros Gastos»/«Otros Ingresos»",
+  "exp": "Creación 201; la eliminación de la categoría protegida es rechazada (4xx)",
+  "obt": "crear=201; eliminar protegida=409",
+  "ok": true
+ },
+ {
+  "id": "TC-38",
+  "hu": "HU-16",
+  "pre": "Datos de prueba cargados",
+  "steps": "1. GET /admin/metrics",
+  "exp": "Solo agregados (conteos); sin saldos ni movimientos por usuario (Ley 1581)",
+  "obt": "HTTP 200; {\"usuarios\": {\"total\": 4, \"activos\": 4, \"suspendidos\": 0, \"administradores\": 1, \"nuevos30d\": 4, \"conAcceso30d\": 4}, \"registrosPorMes\": [{\"mes\": \"2026-10\", \"total\": 4}], \"transacciones\": {\"total\": 12, \"ultimos30d\": {\"ingr",
+  "ok": true
+ },
+ {
+  "id": "TC-39",
+  "hu": "HU-17",
+  "pre": "Sesión de administrador",
+  "steps": "1. GET /admin/system. 2. GET /admin/audit. 3. GET /admin/errors",
+  "exp": "200 en los tres; la auditoría registra los inicios de sesión y las suspensiones",
+  "obt": "HTTP 200/200/200; acciones de auditoría=['auth.login_admin', 'auth.login_cuenta_suspendida', 'auth.login_fallido', 'category.crear', 'user.crear', 'user.reactivar', 'user.suspender']",
+  "ok": true
+ },
+ {
+  "id": "TC-40",
+  "hu": "HU-18",
+  "pre": "Sin GEMINI_API_KEY configurada",
+  "steps": "1. GET /admin/system (bloque «ia»). 2. GET /insights/recommendations",
+  "exp": "La IA aparece como no configurada y las recomendaciones se entregan por reglas",
+  "obt": "ia={\"configurada\": false, \"proveedor\": \"Google Gemini\", \"modelo\": \"gemini-3.8-flash\", \"categorizacionActiva\": false}; recomendaciones=2",
+  "ok": true
+ }
+]
