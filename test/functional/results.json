@@ -293,7 +293,7 @@
   "pre": "Sesión iniciada",
   "steps": "1. Subir PNG válido. 2. Subir .xlsx. 3. Subir PDF de más de 5 MB",
   "exp": "1: 201 con URL; 2 y 3: rechazo (4xx)",
-  "obt": "HTTP 201, 400, 400; url=/uploads/e5c15f3f-5166-48b9-a0c8-5a4550ab420b.png",
+  "obt": "HTTP 201, 400, 400; url=http://localhost:3000/uploads/7399dbcf-bb84-4816-b740-84a6aa91968f.png",
   "ok": true
  },
  {
@@ -311,7 +311,7 @@
   "pre": "Sesión de administrador",
   "steps": "1. POST /admin/users",
   "exp": "201 con la cuenta creada",
-  "obt": "HTTP 201; {\"id\": \"64c2e3a1-9834-4aa5-8d25-c615976557ed\", \"nombre\": \"Cuenta Creada\", \"email\": \"cred7bf6a@t.co\", \"rol\": \"usuario\", \"activo\": true, \"acep",
+  "obt": "HTTP 201; {\"id\": \"7430ba85-35cc-4872-a2ab-ccc1e9b2380f\", \"nombre\": \"Cuenta Creada\", \"email\": \"cre079f5a@t.co\", \"rol\": \"usuario\", \"activo\": true, \"acep",
   "ok": true
  },
  {
@@ -338,7 +338,7 @@
   "pre": "Datos de prueba cargados",
   "steps": "1. GET /admin/metrics",
   "exp": "Solo agregados (conteos); sin saldos ni movimientos por usuario (Ley 1581)",
-  "obt": "HTTP 200; {\"usuarios\": {\"total\": 4, \"activos\": 4, \"suspendidos\": 0, \"administradores\": 1, \"nuevos30d\": 4, \"conAcceso30d\": 4}, \"registrosPorMes\": [{\"mes\": \"2026-10\", \"total\": 4}], \"transacciones\": {\"total\": 12, \"ultimos30d\": {\"ingr",
+  "obt": "HTTP 200; {\"usuarios\": {\"total\": 8, \"activos\": 8, \"suspendidos\": 0, \"administradores\": 1, \"nuevos30d\": 8, \"conAcceso30d\": 8}, \"registrosPorMes\": [{\"mes\": \"2026-10\", \"total\": 8}], \"transacciones\": {\"total\": 24, \"ultimos30d\": {\"ingr",
   "ok": true
  },
  {
@@ -356,7 +356,7 @@
   "pre": "Sin GEMINI_API_KEY configurada",
   "steps": "1. GET /admin/system (bloque «ia»). 2. GET /insights/recommendations",
   "exp": "La IA aparece como no configurada y las recomendaciones se entregan por reglas",
-  "obt": "ia={\"configurada\": false, \"proveedor\": \"Google Gemini\", \"modelo\": \"gemini-3.8-flash\", \"categorizacionActiva\": false}; recomendaciones=2",
+  "obt": "ia={\"configurada\": true, \"proveedor\": \"Google Gemini\", \"modelo\": \"gemini-3.8-flash\", \"categorizacionActiva\": true}; recomendaciones=2",
   "ok": true
  }
 ]

@@ -136,7 +136,8 @@ s,sy=call('GET','/admin/system',tok=atok); s2,au=call('GET','/admin/audit',tok=a
 rec('TC-39','HU-17','Sesión de administrador','1. GET /admin/system. 2. GET /admin/audit. 3. GET /admin/errors','200 en los tres; la auditoría registra los inicios de sesión y las suspensiones',f'HTTP {s}/{s2}/{s3}; acciones de auditoría={sorted(set(x.get("accion") for x in (au if isinstance(au,list) else au.get("data",au.get("items",[])))))}',s==200 and s2==200 and s3==200)
 s,r=call('GET','/admin/system',tok=atok)
 rec('TC-40','HU-18','Sin GEMINI_API_KEY configurada','1. GET /admin/system (bloque «ia»). 2. GET /insights/recommendations','La IA aparece como no configurada y las recomendaciones se entregan por reglas',f'ia={json.dumps(r.get("ia"))}; recomendaciones={len(rc) if isinstance(rc,list) else "ok"}',s==200)
-json.dump(R,open(os.environ.get('RESULTS','results.json'),'w'),ensure_ascii=False,indent=1)
+with open(os.environ.get('RESULTS','results.json'),'w',encoding='utf-8') as _f:
+    json.dump(R,_f,ensure_ascii=False,indent=1)
 print(sum(x['ok'] for x in R),'/',len(R))
 for x in R:
-    if not x['ok']: print(x['id'],x['obt'][:300])
+    if not x['ok']: print(x['id'],x['obt'][:300].encode('ascii','replace').decode())
