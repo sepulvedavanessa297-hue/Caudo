@@ -21,6 +21,16 @@ Plataforma web de finanzas personales (Angular · NestJS · PostgreSQL · n8n ·
 Las recomendaciones se calculan con reglas en el backend. Opcionalmente, un flujo de n8n puede reescribir su redacción:
 importa `n8n/workflows/recomendaciones.json` en n8n, actívalo y define `N8N_RECOMMENDATIONS_WEBHOOK=http://n8n:5678/webhook/caudo-recomendaciones`.
 Solo se envían los textos ya calculados, nunca transacciones ni datos del usuario.
+### Integración opcional con n8n (solo Docker)
+n8n es opcional: sin él, las recomendaciones se entregan con el texto calculado por las reglas.
+1. Con el sistema levantado, abra http://localhost:5678 y cree la cuenta local de n8n.
+2. Importe el flujo: menú `...` del editor → Importar desde archivo → `n8n/workflows/recomendaciones.json`.
+3. Publique el flujo (botón Publicar).
+4. En el `.env` agregue `N8N_RECOMMENDATIONS_WEBHOOK=http://n8n:5678/webhook/caudo-recomendaciones` y guárdelo.
+5. Reinicie el backend: `docker compose up -d --force-recreate backend`.
+6. Compruebe en el panel de administración (Estado del sistema) que n8n aparezca como disponible.
+
+En el despliegue en la nube (Render) n8n no está desplegado; allí las recomendaciones usan las reglas y, si hay clave, Gemini.
 
 ## Roles y panel de administración
 
